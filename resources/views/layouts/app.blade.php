@@ -1,37 +1,51 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="csrf-token" content="{{ csrf_token() }}">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>@yield('title') | UMIR Repository</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  @stack('styles')
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+  @include('partials.header')
+  @include('partials.navbar')
+  @include('partials.mobile-nav')
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+  @hasSection('hero-search')
+    @yield('hero-search')
+  @endif
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-        <!-- Scripts -->
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-    </head>
-    <body class="bg-gray-50 text-gray-800 font-sans">
-        <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+  @hasSection('breadcrumb')
+    <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 py-3 px-6 shadow-sm">
+      <div class="max-w-7xl mx-auto flex items-center gap-2">
+        @yield('breadcrumb')
+      </div>
+    </div>
+  @endif
 
-            <!-- Page Heading -->
-            @if (isset($header))
-                <header class="bg-white shadow">
-                    <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
-                    </div>
-                </header>
-            @endif
+  <main class="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-4 gap-8">
+    <div class="@hasSection('sidebar') md:col-span-3 @else md:col-span-4 @endif space-y-8">
+      @yield('content')
+    </div>
 
-            <!-- Page Content -->
-            <main>
-                {{ $slot }}
-            </main>
-        </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
-    </body>
+    @hasSection('sidebar')
+      <aside class="space-y-6">
+        @yield('sidebar')
+      </aside>
+    @endif
+  </main>
+
+  @include('partials.footer')
+
+  <script>
+    // Mobile menu toggle
+    document.getElementById('mobile-menu-button').addEventListener('click', function() {
+      const menu = document.getElementById('mobile-menu');
+      menu.classList.toggle('active');
+    });
+  </script>
+  @stack('scripts')
+</body>
 </html>

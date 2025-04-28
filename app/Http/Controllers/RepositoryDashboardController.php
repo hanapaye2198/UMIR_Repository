@@ -3,18 +3,19 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Community;
 use App\Models\Paper;
 use App\Models\Author;
 use App\Models\Keyword;
 use Illuminate\Support\Facades\Schema;
+
 class RepositoryDashboardController extends Controller
 {
     public function index()
     {
         $communities = Community::withCount(['collections', 'papers'])->get();
         $recentPapers = Paper::with(['authors', 'keywords'])->latest()->take(5)->get();
-
         $topAuthors = Author::withCount('papers')->orderByDesc('papers_count')->take(5)->get();
         $topKeywords = Keyword::withCount('papers')->orderByDesc('papers_count')->take(5)->get();
 
@@ -22,14 +23,20 @@ class RepositoryDashboardController extends Controller
         $dateColumn = Schema::hasColumn('papers', 'published_date') ? 'published_date' : 'created_at';
 
         $dateCounts = Paper::selectRaw("YEAR($dateColumn) as year, COUNT(*) as total")
-                           ->groupBy('year')->orderBy('year', 'desc')->get();
+                           ->groupBy('year')
+                           ->orderBy('year', 'desc')
+                           ->get();
+
+        // ✅ Pass the user object too!
+        $user = Auth::user();
 
         return view('repository.dashboard', compact(
             'communities',
             'recentPapers',
             'topAuthors',
             'topKeywords',
-            'dateCounts'
+            'dateCounts',
+            'user' // <-- Added user here!
         ));
     }
 }

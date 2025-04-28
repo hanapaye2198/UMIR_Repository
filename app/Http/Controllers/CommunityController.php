@@ -12,7 +12,7 @@ class CommunityController extends Controller
      */
     public function index()
     {
-        $communities = Community::with('collections')->get();
+        $communities = Community::withCount('collections')->paginate(10);
     return view('communities.index', compact('communities'));
     }
 

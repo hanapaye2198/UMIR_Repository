@@ -34,6 +34,22 @@
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
+    @if (session('success'))
+    <div id="success-alert" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+        <strong class="font-bold">Success! </strong>
+        <span class="block sm:inline">{{ session('success') }}</span>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            var alert = document.getElementById('success-alert');
+            if(alert) {
+                alert.style.display = 'none';
+            }
+        }, 5000); // 5 seconds mawala ang alert
+    </script>
+@endif
+
   <!-- Header -->
   <header class="bg-gradient-to-r from-red-800 to-red-600 text-white shadow-lg">
     <div class="max-w-7xl mx-auto flex justify-between items-center py-4 px-4 sm:px-6">
@@ -48,8 +64,9 @@
       </div>
       <div class="text-sm hidden md:flex items-center gap-2 bg-red-700/30 px-3 py-2 rounded-lg">
         <i class="far fa-calendar-alt"></i>
-        <span>Saturday, April 19, 2025</span>
-      </div>
+        <span>{{ \Carbon\Carbon::now()->format('l, F d, Y') }}</span>
+    </div>
+
       <button class="md:hidden text-white focus:outline-none" id="mobile-menu-button">
         <i class="fas fa-bars text-xl"></i>
       </button>
@@ -76,7 +93,7 @@
       </a>
       @auth
       <div class="text-yellow-300 px-3 py-2">
-        Welcome back, {{ Auth::user()->name }}
+        Welcome back, {{ Auth::user()->first_name  }}
       </div>
       @endauth
     </div>
@@ -110,7 +127,7 @@
       <div class="hidden md:flex items-center gap-2 text-sm">
         @auth
         <span class="text-yellow-300">Welcome back,</span>
-        <span class="font-medium"> {{ Auth::user()->name }}</span>
+        <span class="font-medium"> {{ Auth::user()->first_name  }}</span>
         @endauth
       </div>
     </div>
@@ -558,5 +575,18 @@
       menu.classList.toggle('active');
     });
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  @if(session('success'))
+  <script>
+      Swal.fire({
+          title: 'Success!',
+          text: '{{ session('success') }}',
+          icon: 'success',
+          confirmButtonText: 'OK'
+      })
+  </script>
+  @endif
+
 </body>
 </html>

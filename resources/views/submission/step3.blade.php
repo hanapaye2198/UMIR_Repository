@@ -1,57 +1,75 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Step 3: Upload File') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <form method="POST" action="{{ route('submission.step3') }}" enctype="multipart/form-data">
-                    @csrf
+@section('title', 'Step 3: Upload File')
 
-                    <!-- File Upload -->
-                    <div class="mb-4">
-                        <label class="block font-medium text-gray-700">Upload File *</label>
-                        <input type="file" name="file"
-                               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                    </div>
+@section('breadcrumb')
+    @include('partials.breadcrumb', ['links' => [
+        ['url' => route('repository.dashboard'), 'label' => 'Home'],
+        ['label' => 'Step 3: Upload File']
+    ]])
+@endsection
 
-                    <!-- File Description -->
-                    <div class="mb-4">
-                        <label class="block font-medium text-gray-700">File Description</label>
-                        <input type="text" name="file_description"
-                               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
+@section('hero-search')
+    @include('partials.hero-search')
+@endsection
 
-                    <!-- Embargo Date -->
-                    <div class="mb-4">
-                        <label class="block font-medium text-gray-700">Embargo Until (optional)</label>
-                        <input type="date" name="embargo_date"
-                               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
+@section('sidebar')
+    @include('partials.sidebar')
+@endsection
 
-                    <!-- Embargo Reason -->
-                    <div class="mb-4">
-                        <label class="block font-medium text-gray-700">Embargo Reason (optional)</label>
-                        <textarea name="embargo_reason" rows="3"
-                                  class="w-full mt-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                    </div>
+@section('content')
+<div class="bg-white rounded-xl shadow-md p-6 max-w-5xl mx-auto">
+    <h2 class="text-2xl font-semibold text-gray-800 mb-6">Step 3: Upload File</h2>
 
-                    <!-- Navigation Buttons -->
-                    <div class="flex justify-between">
-                        <a href="{{ route('submission.step2') }}"
-                           class="inline-block bg-gray-200 hover:bg-gray-300 text-black px-4 py-2 rounded">
-                            ← Previous
-                        </a>
-                        <button type="submit"
-                                class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded">
-                            Next →
-                        </button>
-                    </div>
-                </form>
-            </div>
+    <form method="POST" action="{{ route('submission.step3') }}" enctype="multipart/form-data">
+        @csrf
+
+        <!-- File Upload -->
+        <div class="mb-6">
+            <label class="block font-medium text-gray-700">Upload File (PDF, DOC, DOCX)</label>
+            <input type="file" name="file" accept=".pdf,.doc,.docx"
+                   class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-400 mt-1" required>
         </div>
-    </div>
-</x-app-layout>
+
+        <!-- File Description -->
+        <div class="mb-6">
+            <label class="block font-medium text-gray-700">File Description</label>
+            <textarea name="file_description" rows="3"
+                      class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-400 mt-1"
+                      placeholder="Optional description about the uploaded file."></textarea>
+        </div>
+
+        <!-- Embargo Date -->
+        <div class="mb-6">
+            <label class="block font-medium text-gray-700">Embargo Date (Restrict Download Until)</label>
+            <input type="date" name="embargo_date"
+                   class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-400 mt-1">
+        </div>
+
+        <!-- Embargo Reason -->
+        <div class="mb-6">
+            <label class="block font-medium text-gray-700">Embargo Reason</label>
+            <textarea name="embargo_reason" rows="3"
+                      class="w-full border rounded-lg px-4 py-2 focus:ring-2 focus:ring-yellow-400 mt-1"
+                      placeholder="Explain why download should be restricted (optional)."></textarea>
+        </div>
+
+        <!-- Download Permission -->
+        <div class="mb-6">
+            <label class="inline-flex items-center">
+                <input type="checkbox" name="download_permission" value="1"
+                       class="form-checkbox text-yellow-500 focus:ring-2 focus:ring-yellow-400">
+                <span class="ml-2 text-gray-700">Allow public download after embargo?</span>
+            </label>
+        </div>
+
+        <!-- Next Button -->
+        <div class="flex justify-end">
+            <button type="submit"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-md transition duration-200">
+                Review →
+            </button>
+        </div>
+    </form>
+</div>
+@endsection

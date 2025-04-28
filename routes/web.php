@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\RegisterUserController;
 use App\Http\Controllers\RepositoryDashboardController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CollectionController;
@@ -24,9 +25,12 @@ Route::get('/', function () {
 Route::get('/repository-dashboard', [RepositoryDashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('repository.dashboard');
-    Route::get('/dashboard', [RepositoryDashboardController::class, 'index'])
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+    // Route::get('/dashboard', [RepositoryDashboardController::class, 'index'])
+    // ->middleware(['auth', 'verified'])
+    // ->name('dashboard');
+
+    Route::get('/register', [RegisterUserController::class, 'create'])->name('register');
+    Route::post('/register', [RegisterUserController::class, 'store']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -50,36 +54,5 @@ Route::prefix('submission')->name('submission.')->group(function () {
     Route::get('/{id}', [PaperSubmissionController::class, 'show'])->name('show'); // <== THIS
 });
 Route::get('/papers', [PaperSubmissionController::class, 'index'])->name('papers.index');
-
-
-// Route::get('/communities', [CommunityController::class, 'index'])->name('communities.index');
-// Route::get('/communities/{community}', [CommunityController::class, 'show'])->name('communities.show');
-
-// Route::get('/collections/{collection}', [CollectionController::class, 'show'])->name('collections.show');
-// Route::resource('communities', CommunityController::class);
-// Route::resource('collections', CollectionController::class);
-// Route::get('/thesis', [ThesisController::class, 'index'])->name('thesis.index');
-// Route::get('/upload', [ThesisController::class, 'create'])->name('thesis.create');
-// Route::post('/upload', [ThesisController::class, 'store'])->name('thesis.store');
-// Route::get('/thesis/view/{id}', [ThesisController::class, 'view'])->name('thesis.view');
-
-// Route::prefix('submission')->group(function () {
-//     Route::get('step1', [PaperSubmissionController::class, 'step1'])->name('submission.step1');
-//     Route::post('step1', [PaperSubmissionController::class, 'storeStep1']);
-
-//     Route::get('step2', [PaperSubmissionController::class, 'step2'])->name('submission.step2');
-//     Route::post('step2', [PaperSubmissionController::class, 'storeStep2']);
-
-//     Route::get('step3', [PaperSubmissionController::class, 'step3'])->name('submission.step3');
-//     Route::post('step3', [PaperSubmissionController::class, 'storeStep3']);
-
-//     Route::get('review', [PaperSubmissionController::class, 'review'])->name('submission.review');
-//     Route::post('submit', [PaperSubmissionController::class, 'submit'])->name('submission.submit');
-
-//     Route::get('/papers/{id}', [PaperSubmissionController::class, 'show'])->name('papers.show');
-//
-// });
-// Route::get('/papers', [PaperSubmissionController::class, 'index'])->name('papers.index');
-// Route::get('/papers/{id}', [PaperSubmissionController::class, 'show'])->name('papers.show');
 
 require __DIR__.'/auth.php';

@@ -6,7 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Paper;
 use App\Models\Author;
 use App\Models\Keyword;
-
+use Intervention\Image\Facades\Image;
+use Imagick;
 class PaperSubmissionController extends Controller
 {
     public function index()
@@ -23,12 +24,21 @@ class PaperSubmissionController extends Controller
     public function storeStep1(Request $request)
     {
         $validated = $request->validate([
+            'collection_id' => 'required|exists:collections,id',
             'title' => 'required|string',
-            'authors' => 'array',
+            'other_title' => 'nullable|string',
+            'authors' => 'array|required',
+            'authors.*.firstname' => 'required|string',
+            'authors.*.lastname' => 'required|string',
             'date_of_issue' => 'nullable|date',
             'publisher' => 'nullable|string',
             'citation' => 'nullable|string',
-            'collection_id' => 'required|exists:collections,id',
+            'series_name' => 'nullable|string',
+            'report_number' => 'nullable|string',
+            'identifier_type' => 'nullable|string',
+            'identifier_value' => 'nullable|string',
+            'type' => 'nullable|string',
+            'language' => 'nullable|string',
         ]);
 
         session(['submission.step1' => $validated]);
@@ -63,15 +73,18 @@ class PaperSubmissionController extends Controller
     public function storeStep3(Request $request)
     {
         $validated = $request->validate([
-            'file' => 'required|file|mimes:pdf,doc,docx',
+            'file' => 'required|file|mimes:pdf,doc,docx|max:51200', // 50MB max (example)
             'file_description' => 'nullable|string',
             'embargo_date' => 'nullable|date',
             'embargo_reason' => 'nullable|string',
+            'download_permission' => 'nullable|boolean',
         ]);
 
         if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('uploads', 'public');
+            $file = $request->file('file');
+            $path = $file->store('uploads', 'public');
             $validated['file_path'] = $path;
+            $validated['file_size'] = $file->getSize();
         }
 
         unset($validated['file']);
@@ -92,49 +105,76 @@ class PaperSubmissionController extends Controller
         $step2 = session('submission.step2');
         $step3 = session('submission.step3');
 
+        // Path sa imong uploaded PDF
+        $pdfPath = storage_path('app/public/' . $step3['file_path']);
+
+        // Generate thumbnail
+        $thumbnailName = 'thumbnails/' . uniqid() . '.jpg'; // e.g. thumbnails/64b8c8c2c7.jpg
+        $thumbnailPath = storage_path('app/public/' . $thumbnailName);
+
+        $imagick = new Imagick();
+        $imagick->setResolution(150, 150); // optional: better quality
+        $imagick->readImage($pdfPath.'[0]'); // [0] = first page
+        $imagick->setImageFormat('jpg');
+        $imagick->writeImage($thumbnailPath);
+        $imagick->clear();
+        $imagick->destroy();
+
+        // Create the Paper
         $paper = Paper::create([
-            'title' => $step1['title'],
-            'abstract' => $step2['abstract'] ?? null,
-            'publication_date' => $step1['date_of_issue'] ?? null,
-            'file_path' => $step3['file_path'],
-            'description' => $step2['description'] ?? null,
             'collection_id' => $step1['collection_id'],
+            'title' => $step1['title'],
+            'other_title' => $step1['other_title'] ?? null,
+            'date_of_issue' => $step1['date_of_issue'] ?? null,
+            'publisher' => $step1['publisher'] ?? null,
+            'citation' => $step1['citation'] ?? null,
+            'series_name' => $step1['series_name'] ?? null,
+            'report_number' => $step1['report_number'] ?? null,
+            'identifier_type' => $step1['identifier_type'] ?? null,
+            'identifier_value' => $step1['identifier_value'] ?? null,
+            'type' => $step1['type'] ?? null,
+            'language' => $step1['language'] ?? null,
+            'abstract' => $step2['abstract'] ?? null,
+            'description' => $step2['description'] ?? null,
+            'thumbnail' => $thumbnailName, // Save thumbnail path
+            'file_path' => $step3['file_path'],
+            'file_size' => $step3['file_size'] ?? null,
+            'file_description' => $step3['file_description'] ?? null,
+            'download_date' => $step3['embargo_date'] ?? null,
+            'download_permission' => isset($step3['download_permission']) ? (bool) $step3['download_permission'] : false,
+
         ]);
 
-        foreach ($step1['authors'] as $authorName) {
-            $nameParts = explode(',', $authorName);
-
-            $last = trim($nameParts[0] ?? '');
-            $first = trim($nameParts[1] ?? '');
-
-            if (empty($first)) {
-                $first = $last;
-                $last = '';
-            }
-
+        // Attach authors
+        foreach ($step1['authors'] as $authorData) {
             $author = Author::firstOrCreate([
-                'firstname' => $first,
-                'lastname' => $last,
+                'firstname' => $authorData['firstname'],
+                'lastname' => $authorData['lastname'],
             ]);
 
             $paper->authors()->attach($author->id);
         }
 
+       // Attach keywords
         if (!empty($step2['keywords'])) {
-            foreach ($step2['keywords'] as $keyword) {
+            $keywordIds = [];
+            foreach (array_unique($step2['keywords']) as $keyword) {
                 $key = Keyword::firstOrCreate(['name' => $keyword]);
-                $paper->keywords()->attach($key->id);
+                $keywordIds[] = $key->id;
             }
+            $paper->keywords()->syncWithoutDetaching($keywordIds);
         }
+
+
 
         session()->forget('submission');
 
         return redirect()->route('submission.step1')->with('success', 'Paper submitted successfully!');
     }
-    public function show($id)
-{
-    $paper = Paper::with(['authors', 'keywords'])->findOrFail($id);
-    return view('submission.show', compact('paper'));
-}
 
+    public function show($id)
+    {
+        $paper = Paper::with(['authors', 'keywords'])->findOrFail($id);
+        return view('submission.show', compact('paper'));
+    }
 }
