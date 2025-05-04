@@ -7,6 +7,7 @@ use App\Http\Controllers\RepositoryDashboardController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CollectionController;
 use App\Http\Controllers\PaperSubmissionController;
+use App\Http\Controllers\SearchController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,9 +20,8 @@ use App\Http\Controllers\PaperSubmissionController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
-
 Route::get('/repository-dashboard', [RepositoryDashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('repository.dashboard');
@@ -41,6 +41,8 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('communities', CommunityController::class);
     Route::resource('collections', CollectionController::class);
 });
+Route::get('/search', [SearchController::class, 'search'])->name('search');
+
 Route::prefix('submission')->name('submission.')->group(function () {
     Route::get('/', [PaperSubmissionController::class, 'index'])->name('index');
     Route::get('/step1', [PaperSubmissionController::class, 'step1'])->name('step1');

@@ -54,11 +54,13 @@
                     <p class="text-sm text-gray-600 mt-1">
                         <span class="font-medium">
                             @foreach($paper->authors as $author)
-                                {{ $author->name }}@if(!$loop->last), @endif
+                            {{ $author->firstname }} {{ $author->lastname }}
+                            @if(!$loop->last), @endif
                             @endforeach
                         </span>
                         <span class="text-gray-500">
-                            ({{ $paper->course ?? 'N/A' }}, {{ $paper->publication_date ? \Carbon\Carbon::parse($paper->publication_date)->format('Y-m') : 'N/A' }})
+                            ({{ $paper->course ?? 'N/A' }}, {{ $paper->date_of_issue ? \Carbon\Carbon::parse($paper->date_of_issue)->format('Y-m') : 'N/A' }}
+                            )
                         </span>
                     </p>
                     <p class="text-sm mt-2 text-gray-700 line-clamp-2">

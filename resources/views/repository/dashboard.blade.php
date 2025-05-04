@@ -134,27 +134,33 @@
   </nav>
 
   <!-- Hero Search -->
-  <div class="bg-gradient-to-r from-gray-900 to-gray-800 text-white px-4 sm:px-6 py-6 shadow-inner">
+<!-- Hero Search -->
+<div class="bg-gradient-to-r from-gray-900 to-gray-800 text-white px-4 sm:px-6 py-6 shadow-inner">
     <div class="max-w-7xl mx-auto">
       <h2 class="text-lg sm:text-xl md:text-2xl font-bold mb-4 flex items-center gap-2">
         <i class="fas fa-search"></i>
         <span>Discover Research & Scholarship</span>
       </h2>
-      <div class="flex flex-col sm:flex-row gap-3 items-center">
-        <select class="text-gray-800 px-4 py-2 rounded-lg border-0 shadow-sm w-full sm:w-auto focus:ring-2 focus:ring-yellow-400">
-          <option>All Fields</option>
-          <option>Title</option>
-          <option>Author</option>
-          <option>Subject</option>
-          <option>Abstract</option>
+
+      <form action="{{ route('search') }}" method="GET" class="flex flex-col sm:flex-row gap-3 items-center">
+        <select name="field" class="text-gray-800 px-4 py-2 rounded-lg border-0 shadow-sm w-full sm:w-auto focus:ring-2 focus:ring-yellow-400">
+          <option value="all">All Fields</option>
+          <option value="title">Title</option>
+          <option value="author">Author</option>
+          <option value="subject">Subject</option>
+          <option value="abstract">Abstract</option>
         </select>
-        <input type="text" placeholder="Search for publications, theses, articles..."
-               class="flex-1 px-4 py-2 text-gray-800 rounded-lg border-0 shadow-sm w-full focus:ring-2 focus:ring-yellow-400" />
-        <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg shadow-md transition-colors duration-200 w-full sm:w-auto flex items-center justify-center gap-2">
+
+        <input type="text" name="query" placeholder="Search for publications, theses, articles..."
+               class="flex-1 px-4 py-2 text-gray-800 rounded-lg border-0 shadow-sm w-full focus:ring-2 focus:ring-yellow-400" required />
+
+        <button type="submit"
+                class="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 sm:px-6 rounded-lg shadow-md transition-colors duration-200 w-full sm:w-auto flex items-center justify-center gap-2">
           <i class="fas fa-search"></i>
           <span class="hidden sm:inline">Search</span>
         </button>
-      </div>
+      </form>
+
       <div class="mt-4 text-sm text-gray-300">
         <a href="#" class="hover:text-yellow-300 transition-colors duration-200 flex items-center gap-1">
           <i class="fas fa-filter"></i>
@@ -163,6 +169,7 @@
       </div>
     </div>
   </div>
+
 
   <!-- Breadcrumb -->
   <div class="bg-gradient-to-r from-yellow-400 to-yellow-500 text-gray-900 py-3 px-4 sm:px-6 shadow-sm">
@@ -305,212 +312,169 @@
 
     <!-- Sidebar -->
     <aside class="space-y-4 sm:space-y-6">
-      <!-- Quick Links -->
-      <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
-        <h4 class="font-semibold text-base sm:text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
-          <i class="fas fa-link"></i>
-          <span>Quick Links</span>
-        </h4>
-        <ul class="mt-3 space-y-2">
-          <li>
-            <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
-              <i class="fas fa-chevron-right text-xs text-gray-400"></i>
-              <span>Submit Research</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
-              <i class="fas fa-chevron-right text-xs text-gray-400"></i>
-              <span>Browse Collections</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
-              <i class="fas fa-chevron-right text-xs text-gray-400"></i>
-              <span>Research Guidelines</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
-              <i class="fas fa-chevron-right text-xs text-gray-400"></i>
-              <span>Help & Tutorials</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <!-- My Account -->
-      <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
-        <h4 class="font-semibold text-base sm:text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
-          <i class="fas fa-user-circle"></i>
-          <span>My Account</span>
-        </h4>
-        <ul class="mt-3 space-y-2">
-          <li>
-            <a href="#" class="text-gray-700 hover:text-red-700 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
-              <i class="fas fa-sign-out-alt text-gray-500"></i>
-              <span>Logout</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="text-gray-700 hover:text-red-700 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
-              <i class="fas fa-user-edit text-gray-500"></i>
-              <span>Profile</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="text-gray-700 hover:text-red-700 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
-              <i class="fas fa-file-upload text-gray-500"></i>
-              <span>Submissions</span>
-            </a>
-          </li>
-          <li>
-            <a href="#" class="text-gray-700 hover:text-red-700 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
-              <i class="fas fa-bookmark text-gray-500"></i>
-              <span>Saved Items</span>
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Statistics -->
-      <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
-        <h4 class="font-semibold text-base sm:text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
-          <i class="fas fa-chart-pie"></i>
-          <span>Repository Statistics</span>
-        </h4>
-        <div class="mt-3">
-          <div class="flex justify-between items-center py-2 border-b">
-            <span class="text-gray-600">Total Items</span>
-            <span class="font-medium">1,228</span>
-          </div>
-          <div class="flex justify-between items-center py-2 border-b">
-            <span class="text-gray-600">This Month</span>
-            <span class="font-medium">24 new</span>
-          </div>
-          <div class="flex justify-between items-center py-2 border-b">
-            <span class="text-gray-600">Downloads</span>
-            <span class="font-medium">5,421</span>
-          </div>
-          <div class="flex justify-between items-center py-2">
-            <span class="text-gray-600">Active Users</span>
-            <span class="font-medium">328</span>
-          </div>
+        <!-- Quick Links -->
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
+            <h4 class="font-semibold text-base sm:text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
+                <i class="fas fa-link"></i>
+                <span>Quick Links</span>
+            </h4>
+            <ul class="mt-3 space-y-2">
+                @foreach ($quickLinks as $link)
+                    <li>
+                        <a href="{{ $link['url'] }}" class="text-blue-600 hover:text-blue-800 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
+                            <i class="fas fa-chevron-right text-xs text-gray-400"></i>
+                            <span>{{ $link['label'] }}</span>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
         </div>
-      </div>
 
-      <!-- Discover -->
-      <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
-        <h4 class="font-semibold text-base sm:text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
-          <i class="fas fa-compass"></i>
-          <span>Discover</span>
-        </h4>
-
-        <div class="mt-3 space-y-4">
-          <div>
-            <p class="font-bold text-sm text-gray-700 flex items-center gap-1">
-              <i class="fas fa-user-graduate"></i>
-              <span>Author</span>
-            </p>
-            <ul class="mt-1 space-y-1 pl-5">
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>Buenaventura, Viola P.</span>
-                  <span class="text-gray-500">(29)</span>
-                </a>
-              </li>
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>Montano, Marlon</span>
-                  <span class="text-gray-500">(26)</span>
-                </a>
-              </li>
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>View all authors...</span>
-                  <i class="fas fa-chevron-right text-xs"></i>
-                </a>
-              </li>
+        <!-- My Account -->
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
+            <h4 class="font-semibold text-base sm:text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
+                <i class="fas fa-user-circle"></i>
+                <span>My Account</span>
+            </h4>
+            <ul class="mt-3 space-y-2">
+                @foreach ($accountLinks as $link)
+                    <li>
+                        <a href="{{ $link['url'] }}" class="text-gray-700 hover:text-red-700 hover:underline transition-colors duration-200 flex items-center gap-2 py-1">
+                            <i class="fas fa-{{ $link['icon'] }} text-gray-500"></i>
+                            <span>{{ $link['label'] }}</span>
+                        </a>
+                    </li>
+                @endforeach
             </ul>
-          </div>
-
-          <div>
-            <p class="font-bold text-sm text-gray-700 flex items-center gap-1">
-              <i class="fas fa-tag"></i>
-              <span>Subject</span>
-            </p>
-            <ul class="mt-1 space-y-1 pl-5">
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>Davao del Sur</span>
-                  <span class="text-gray-500">(52)</span>
-                </a>
-              </li>
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>Bansalan</span>
-                  <span class="text-gray-500">(47)</span>
-                </a>
-              </li>
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>View all subjects...</span>
-                  <i class="fas fa-chevron-right text-xs"></i>
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <p class="font-bold text-sm text-gray-700 flex items-center gap-1">
-              <i class="fas fa-calendar-alt"></i>
-              <span>Date Issued</span>
-            </p>
-            <ul class="mt-1 space-y-1 pl-5">
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>2020 - 2024</span>
-                  <span class="text-gray-500">(554)</span>
-                </a>
-              </li>
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>2010 - 2019</span>
-                  <span class="text-gray-500">(669)</span>
-                </a>
-              </li>
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>View timeline...</span>
-                  <i class="fas fa-chevron-right text-xs"></i>
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <p class="font-bold text-sm text-red-700 flex items-center gap-1">
-              <i class="fas fa-file-alt"></i>
-              <span>Has File(s)</span>
-            </p>
-            <ul class="mt-1 space-y-1 pl-5">
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>Yes</span>
-                  <span class="text-gray-500">(1142)</span>
-                </a>
-              </li>
-              <li class="text-sm text-gray-600 hover:text-red-700 transition-colors duration-200">
-                <a href="#" class="flex justify-between">
-                  <span>No</span>
-                  <span class="text-gray-500">(86)</span>
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
-      </div>
+
+        <!-- Statistics -->
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
+            <h4 class="font-semibold text-base sm:text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
+                <i class="fas fa-chart-pie"></i>
+                <span>Repository Statistics</span>
+            </h4>
+            <div class="mt-3">
+                <div class="flex justify-between items-center py-2 border-b">
+                    <span class="text-gray-600">Total Items</span>
+                    <span class="font-medium">{{ $stats['total_items'] }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b">
+                    <span class="text-gray-600">This Month</span>
+                    <span class="font-medium">{{ $stats['this_month'] }} new</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b">
+                    <span class="text-gray-600">Downloads</span>
+                    <span class="font-medium">{{ $stats['downloads'] }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                    <span class="text-gray-600">Active Users</span>
+                    <span class="font-medium">{{ $stats['active_users'] }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Discover -->
+        <div class="bg-white rounded-xl shadow-md p-4 sm:p-5">
+            <h4 class="font-semibold text-base sm:text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
+                <i class="fas fa-compass"></i>
+                <span>Discover</span>
+            </h4>
+            <div class="mt-3 space-y-4">
+                <div>
+                    <p class="font-bold text-sm text-gray-700 flex items-center gap-1">
+                        <i class="fas fa-user-graduate"></i>
+                        <span>Author</span>
+                    </p>
+                    <ul class="mt-1 space-y-1 pl-5">
+                        @foreach ($topAuthors as $author)
+                            <li class="text-sm text-gray-600 hover:text-red-700">
+                                <a href="#" class="flex justify-between">
+                                    <span>{{ $author->full_name }}</span>
+                                    <span class="text-gray-500">({{ $author->papers_count }})</span>
+                                </a>
+                            </li>
+                        @endforeach
+                        <li class="text-sm text-gray-600 hover:text-red-700">
+                            <a href="#" class="flex justify-between">
+                                <span>View all authors...</span>
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p class="font-bold text-sm text-gray-700 flex items-center gap-1">
+                        <i class="fas fa-tag"></i>
+                        <span>Subject</span>
+                    </p>
+                    <ul class="mt-1 space-y-1 pl-5">
+                        @foreach ($topKeywords as $keyword)
+                            <li class="text-sm text-gray-600 hover:text-red-700">
+                                <a href="#" class="flex justify-between">
+                                    <span>{{ $keyword->name }}</span>
+                                    <span class="text-gray-500">({{ $keyword->papers_count }})</span>
+                                </a>
+                            </li>
+                        @endforeach
+                        <li class="text-sm text-gray-600 hover:text-red-700">
+                            <a href="#" class="flex justify-between">
+                                <span>View all subjects...</span>
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p class="font-bold text-sm text-gray-700 flex items-center gap-1">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Date Issued</span>
+                    </p>
+                    <ul class="mt-1 space-y-1 pl-5">
+                        @foreach ($dateIssued as $range)
+                            <li class="text-sm text-gray-600 hover:text-red-700">
+                                <a href="#" class="flex justify-between">
+                                    <span>{{ $range['label'] }}</span>
+                                    <span class="text-gray-500">({{ $range['count'] }})</span>
+                                </a>
+                            </li>
+                        @endforeach
+                        <li class="text-sm text-gray-600 hover:text-red-700">
+                            <a href="#" class="flex justify-between">
+                                <span>View timeline...</span>
+                                <i class="fas fa-chevron-right text-xs"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div>
+                    <p class="font-bold text-sm text-red-700 flex items-center gap-1">
+                        <i class="fas fa-file-alt"></i>
+                        <span>Has File(s)</span>
+                    </p>
+                    <ul class="mt-1 space-y-1 pl-5">
+                        <li class="text-sm text-gray-600 hover:text-red-700">
+                            <a href="#" class="flex justify-between">
+                                <span>Yes</span>
+                                <span class="text-gray-500">({{ $fileCounts['yes'] }})</span>
+                            </a>
+                        </li>
+                        <li class="text-sm text-gray-600 hover:text-red-700">
+                            <a href="#" class="flex justify-between">
+                                <span>No</span>
+                                <span class="text-gray-500">({{ $fileCounts['no'] }})</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </aside>
+
+
   </main>
 
   <!-- Footer -->

@@ -7,14 +7,16 @@ use App\Models\Paper;
 use App\Models\Author;
 use App\Models\Keyword;
 use Intervention\Image\Facades\Image;
-use Imagick;
+use Illuminate\Support\Str;
+
 class PaperSubmissionController extends Controller
 {
     public function index()
     {
-        $papers = Paper::with(['authors', 'keywords'])->latest()->get();
+        $papers = Paper::with(['authors', 'keywords'])->latest()->paginate(10);
         return view('submission.index', compact('papers'));
     }
+
 
     public function step1()
     {
@@ -73,7 +75,7 @@ class PaperSubmissionController extends Controller
     public function storeStep3(Request $request)
     {
         $validated = $request->validate([
-            'file' => 'required|file|mimes:pdf,doc,docx|max:51200', // 50MB max (example)
+            'file' => 'required|file|mimes:pdf,doc,docx|max:51200',
             'file_description' => 'nullable|string',
             'embargo_date' => 'nullable|date',
             'embargo_reason' => 'nullable|string',
@@ -105,20 +107,24 @@ class PaperSubmissionController extends Controller
         $step2 = session('submission.step2');
         $step3 = session('submission.step3');
 
-        // Path sa imong uploaded PDF
-        $pdfPath = storage_path('app/public/' . $step3['file_path']);
+        // Path sa imong uploaded file
+        $filePath = storage_path('app/public/' . $step3['file_path']);
 
-        // Generate thumbnail
-        $thumbnailName = 'thumbnails/' . uniqid() . '.jpg'; // e.g. thumbnails/64b8c8c2c7.jpg
+        // Generate thumbnail name
+        $thumbnailName = 'thumbnails/' . uniqid() . '.jpg';
         $thumbnailPath = storage_path('app/public/' . $thumbnailName);
 
-        $imagick = new Imagick();
-        $imagick->setResolution(150, 150); // optional: better quality
-        $imagick->readImage($pdfPath.'[0]'); // [0] = first page
-        $imagick->setImageFormat('jpg');
-        $imagick->writeImage($thumbnailPath);
-        $imagick->clear();
-        $imagick->destroy();
+        // Use fallback thumbnail if not an image
+        $defaultThumbnail = 'thumbnails/default.jpg';
+        try {
+            $img = Image::make($filePath)->resize(300, 300, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+            $img->save($thumbnailPath);
+        } catch (\Exception $e) {
+            $thumbnailName = $defaultThumbnail;
+        }
 
         // Create the Paper
         $paper = Paper::create([
@@ -136,13 +142,12 @@ class PaperSubmissionController extends Controller
             'language' => $step1['language'] ?? null,
             'abstract' => $step2['abstract'] ?? null,
             'description' => $step2['description'] ?? null,
-            'thumbnail' => $thumbnailName, // Save thumbnail path
+            'thumbnail' => $thumbnailName,
             'file_path' => $step3['file_path'],
             'file_size' => $step3['file_size'] ?? null,
             'file_description' => $step3['file_description'] ?? null,
             'download_date' => $step3['embargo_date'] ?? null,
             'download_permission' => isset($step3['download_permission']) ? (bool) $step3['download_permission'] : false,
-
         ]);
 
         // Attach authors
@@ -155,7 +160,7 @@ class PaperSubmissionController extends Controller
             $paper->authors()->attach($author->id);
         }
 
-       // Attach keywords
+        // Attach keywords
         if (!empty($step2['keywords'])) {
             $keywordIds = [];
             foreach (array_unique($step2['keywords']) as $keyword) {
@@ -165,16 +170,18 @@ class PaperSubmissionController extends Controller
             $paper->keywords()->syncWithoutDetaching($keywordIds);
         }
 
-
-
         session()->forget('submission');
 
         return redirect()->route('submission.step1')->with('success', 'Paper submitted successfully!');
     }
 
     public function show($id)
-    {
-        $paper = Paper::with(['authors', 'keywords'])->findOrFail($id);
-        return view('submission.show', compact('paper'));
-    }
+{
+    $paper = Paper::with(['authors', 'keywords'])->findOrFail($id);
+    $paper->increment('views'); // 👈 count as view
+
+    return view('submission.show', compact('paper'));
+}
+
+
 }

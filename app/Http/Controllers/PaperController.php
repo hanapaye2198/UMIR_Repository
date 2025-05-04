@@ -166,15 +166,7 @@ class PaperController extends Controller
             ->with('success', 'Paper deleted successfully.');
     }
 
-    public function download(Collection $collection, Paper $paper)
-    {
-        if (!$paper->download_permission) {
-            abort(403, 'Download permission not granted for this paper.');
-        }
-
-        $path = storage_path('app/public/' . $paper->file_path);
-        return response()->download($path, Str::slug($paper->title) . '.pdf');
-    }
+    // Removed duplicate download method to avoid redeclaration error.
 
     protected function processAuthors(Paper $paper, Request $request)
     {
@@ -222,4 +214,6 @@ class PaperController extends Controller
             }
         }
     }
+    // Removed duplicate download method to avoid redeclaration error.
+
 }
