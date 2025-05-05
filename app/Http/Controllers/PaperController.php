@@ -9,7 +9,7 @@ use App\Models\Author;
 use App\Models\Keyword;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-aslkdhaskjdhas askjdghaskjdh 
+
 class PaperController extends Controller
 {
     public function index(Collection $collection)
