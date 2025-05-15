@@ -18,4 +18,5 @@ class Community extends Model
     {
         return $this->hasManyThrough(Paper::class, Collection::class);
     }
+
 }

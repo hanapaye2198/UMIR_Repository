@@ -17,7 +17,7 @@ class SidebarViewServiceProvider extends ServiceProvider
     {
         View::composer('partials.sidebar', function ($view) {
             $quickLinks = [
-                ['label' => 'Submit Research', 'url' => route('papers.index')],
+                ['label' => 'Submit Research', 'url' => route('submission.index')],
                 ['label' => 'Browse Collections', 'url' => route('collections.index')],
                 ['label' => 'Research Guidelines', 'url' => '#'],
                 ['label' => 'Help & Tutorials', 'url' => '#'],

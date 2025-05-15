@@ -1,110 +1,372 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <div class="container">
-                        <div class="card">
-                            <div class="card-header">
-                                <h2>{{ $paper->title }}</h2>
-                                <p class="mb-0 text-muted">{{ $paper->type }}</p>
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <h4 class="mb-3">Details</h4>
+@section('title', $paper->title)
 
-                                        <div class="mb-3">
-                                            <h5>Authors</h5>
-                                            <ul class="list-unstyled">
-                                                @foreach($paper->authors as $author)
-                                                    <li>{{ $author->lastname }}, {{ $author->firstname }}</li>
-                                                @endforeach
-                                            </ul>
-                                        </div>
+@section('breadcrumb')
+    @include('partials.breadcrumb', ['links' => [
+        ['url' => route('repository.dashboard'), 'label' => 'Home'],
+        ['url' => route('collections.show', $paper->collection->id), 'label' => $paper->collection->name],
+        ['label' => $paper->title]
+    ]])
+@endsection
 
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <h5>Publication Information</h5>
-                                                <p><strong>Date of Issue:</strong> {{ $paper->date_of_issue ? $paper->date_of_issue->format('F Y') : 'N/A' }}</p>
-                                                <p><strong>Publisher:</strong> {{ $paper->publisher ?? 'N/A' }}</p>
-                                                <p><strong>Identifier:</strong> {{ $paper->identifier ?? 'N/A' }}</p>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <h5>Metadata</h5>
-                                                <p><strong>Type:</strong> {{ $paper->type ?? 'N/A' }}</p>
-                                                <p><strong>Language:</strong> {{ $paper->language ?? 'N/A' }}</p>
-                                                <p><strong>Keywords:</strong> {{ $paper->keywords->pluck('name')->implode(', ') }}</p>
-                                            </div>
-                                        </div>
+@section('hero-search')
+    @include('partials.hero-search')
+@endsection
 
-                                        <div class="mb-3">
-                                            <h5>Abstract</h5>
-                                            <p>{{ $paper->abstract ?? 'No abstract available.' }}</p>
-                                        </div>
+@section('sidebar')
+    @include('partials.sidebar')
 
-                                        @if($paper->description)
-                                        <div class="mb-3">
-                                            <h5>Description</h5>
-                                            <p>{{ $paper->description }}</p>
-                                        </div>
-                                        @endif
-                                    </div>
+    @php
+        $isStudent = auth()->check() && auth()->user()->role === 'student';
+        $isEmbargoed = $paper->download_date && now()->lt($paper->download_date);
+        $hasPermission = $paper->download_permission;
+        $requestPending = isset($existingRequest) && $existingRequest->status === 'pending';
+    @endphp
 
-                                    <div class="col-md-4">
-                                        <div class="card">
-                                            <div class="card-body text-center">
-                                                <i class="fas fa-file-pdf fa-5x text-danger mb-3"></i>
-                                                <h5 class="card-title">{{ basename($paper->file_path) }}</h5>
-                                                <p class="text-muted mb-2">{{ round($paper->file_size / 1024) }} KB</p>
-                                                <p class="text-muted">{{ $paper->file_description }}</p>
-
-                                                @if($paper->download_permission)
-                                                    <a href="{{ route('collections.papers.download', [$collection->id, $paper->id]) }}"
-                                                       class="btn btn-primary btn-block mt-3">
-                                                        <i class="fas fa-download"></i> Download PDF
-                                                    </a>
-                                                @else
-                                                    <button class="btn btn-secondary btn-block mt-3" disabled>
-                                                        <i class="fas fa-ban"></i> Download Restricted
-                                                    </button>
-                                                    <small class="text-muted">Contact administrator for access</small>
-                                                @endif
-                                            </div>
-                                        </div>
-
-                                        <div class="card mt-3">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Collection Information</h5>
-                                                <p class="mb-1"><strong>Collection:</strong> {{ $collection->name }}</p>
-                                                <p class="mb-1"><strong>Community:</strong> {{ $collection->community->name }}</p>
-                                                <a href="{{ route('collections.show', $collection->id) }}" class="btn btn-sm btn-outline-primary mt-2">
-                                                    View Collection
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <a href="{{ route('collections.papers.index', $collection->id) }}" class="btn btn-secondary">
-                                    <i class="fas fa-arrow-left"></i> Back to Papers List
-                                </a>
-                                <a href="{{ route('collections.papers.edit', [$collection->id, $paper->id]) }}"
-                                   class="btn btn-primary">
-                                    <i class="fas fa-edit"></i> Edit
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Additional Paper Info Sidebar -->
+    <div class="bg-white rounded-xl shadow-md p-5 mt-6">
+        <h4 class="font-semibold text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
+            <i class="fas fa-info-circle text-red-600"></i>
+            <span>Paper Details</span>
+        </h4>
+        <div class="mt-3 space-y-3">
+            <div>
+                <span class="text-sm font-medium text-gray-700">Published:</span>
+                <p class="text-sm">{{ $paper->publication_date ? $paper->publication_date->format('F Y') : 'Not specified' }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-gray-700">Collection:</span>
+                <p class="text-sm">{{ $paper->collection->name }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-gray-700">Community:</span>
+                <p class="text-sm">{{ $paper->collection->community->name }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-gray-700">Course/Program:</span>
+                <p class="text-sm">{{ $paper->course ?? 'Not specified' }}</p>
+            </div>
+            <div>
+                <span class="text-sm font-medium text-gray-700">Keywords:</span>
+                <p class="text-sm">
+                    @if($paper->keywords)
+                        @foreach(explode(',', $paper->keywords) as $keyword)
+                            <span class="inline-block bg-gray-100 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-1 mb-1">{{ trim($keyword) }}</span>
+                        @endforeach
+                    @else
+                        None specified
+                    @endif
+                </p>
             </div>
         </div>
     </div>
-</x-app-layout>
+
+    <!-- Statistics Sidebar -->
+    <div class="bg-white rounded-xl shadow-md p-5 mt-6">
+        <h4 class="font-semibold text-lg border-b pb-2 text-gray-800 flex items-center gap-2">
+            <i class="fas fa-chart-bar text-red-600"></i>
+            <span>Statistics</span>
+        </h4>
+        <div class="mt-3 space-y-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-eye text-gray-500"></i>
+                    <span class="text-sm">Views</span>
+                </div>
+                <span class="font-medium">{{ number_format($paper->views) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-download text-gray-500"></i>
+                    <span class="text-sm">Downloads</span>
+                </div>
+                <span class="font-medium">{{ number_format($paper->downloads) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-heart text-gray-500"></i>
+                    <span class="text-sm">Likes</span>
+                </div>
+                <span class="font-medium">{{ number_format($paper->likes_count) }}</span>
+            </div>
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i class="fas fa-calendar-alt text-gray-500"></i>
+                    <span class="text-sm">Added</span>
+                </div>
+                <span class="font-medium">{{ $paper->created_at->diffForHumans() }}</span>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('content')
+<div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-4xl mx-auto">
+    <!-- Paper Header -->
+    <div class="bg-gradient-to-r from-red-700 to-red-600 text-white p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold mb-2">{{ $paper->title }}</h1>
+                <div class="flex flex-wrap items-center gap-2 text-sm text-red-100">
+                    @if($paper->authors && $paper->authors->count())
+                        <span class="flex items-center gap-1">
+                            <i class="fas fa-user-edit"></i>
+                            {{ $paper->authors->pluck('name')->join(', ') }}
+                        </span>
+                    @endif
+                    @if($paper->publication_date)
+                        <span class="flex items-center gap-1">
+                            <i class="far fa-calendar"></i>
+                            {{ $paper->publication_date->format('F Y') }}
+                        </span>
+                    @endif
+                </div>
+            </div>
+            @if(auth()->user() && auth()->user()->role === 'librarian')
+                @if($paper->file_path)
+                <a href="{{ route('papers.download', $paper->id) }}"
+                    class="bg-white hover:bg-gray-100 text-red-700 px-5 py-3 rounded-lg shadow-md transition duration-200 flex items-center gap-2">
+                    <i class="fas fa-eye"></i>
+                    <span>View Full Document</span>
+                </a>
+                @endif
+            @endif
+        </div>
+    </div>
+
+    <!-- Download Controls -->
+    <div class="p-6 border-b">
+        @if($isStudent)
+            @if($isEmbargoed)
+                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-yellow-700">
+                                This paper is under embargo until <strong>{{ \Carbon\Carbon::parse($paper->download_date)->format('F d, Y') }}</strong>.
+                                You cannot download it until this date.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @elseif(!$hasPermission)
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-blue-700">
+                                You need permission to download this paper. Please submit a request below.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                @if($requestPending)
+                    <div class="bg-purple-50 border-l-4 border-purple-400 p-4 mb-4 rounded">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-clock text-purple-500 mt-1"></i>
+                            </div>
+                            <div class="ml-3">
+                                <p class="text-sm text-purple-700">
+                                    Your download request is pending approval.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                @else
+                    <button type="button" onclick="document.getElementById('requestModal').showModal()"
+                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center gap-2 transition duration-200">
+                        <i class="fas fa-paper-plane"></i>
+                        <span>Request Download Permission</span>
+                    </button>
+                @endif
+            @else
+                <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4 rounded">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm text-green-700">
+                                Your download permission has been approved. You may now download this paper.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <a href="{{ route('papers.download', $paper->id) }}"
+                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm inline-flex items-center gap-2 transition duration-200">
+                    <i class="fas fa-download"></i>
+                    <span>Download Paper</span>
+                </a>
+            @endif
+        @else
+            {{-- Non-student users or already permitted --}}
+            <a href="{{ route('papers.download', $paper->id) }}"
+               class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm inline-flex items-center gap-2 transition duration-200">
+                <i class="fas fa-download"></i>
+                <span>Download Paper</span>
+            </a>
+        @endif
+    </div>
+
+    <!-- Paper Content -->
+    <div class="p-6">
+        <!-- Abstract Section -->
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                <i class="fas fa-align-left text-red-600"></i>
+                <h2 class="text-xl font-semibold text-gray-800">Abstract</h2>
+            </div>
+            <div class="prose max-w-none text-gray-700">
+                {!! nl2br(e($paper->abstract)) !!}
+            </div>
+        </div>
+
+        <!-- Preview Section -->
+        <div class="mb-8">
+            <div class="flex items-center gap-2 mb-4 border-b pb-2">
+                <i class="fas fa-file-pdf text-red-600"></i>
+                <h2 class="text-xl font-semibold text-gray-800">Document Preview</h2>
+            </div>
+            <div class="border rounded-lg bg-gray-50 overflow-hidden">
+                @if($paper->file_path && file_exists(public_path('storage/' . $paper->file_path)))
+                    <iframe
+                        src="{{ asset('storage/' . $paper->file_path) }}#page=1"
+                        width="100%"
+                        height="600px"
+                        class="w-full border-none"
+                        style="min-height: 600px;">
+                    </iframe>
+                    <p class="text-sm text-center text-gray-500 py-2 bg-gray-100">Previewing first 10 pages only</p>
+                @else
+                    <div class="text-center text-red-600 py-8 bg-gray-100">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
+                        <p class="font-medium">Document not available for preview</p>
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        <!-- Additional Actions -->
+        <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t">
+            <a href="{{ route('collections.show', $paper->collection->id) }}"
+               class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg shadow-sm transition duration-200 flex items-center gap-2">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back to Collection</span>
+            </a>
+
+            @can('update', $paper)
+            <a href="{{ route('papers.edit', $paper->id) }}"
+               class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm transition duration-200 flex items-center gap-2">
+                <i class="fas fa-edit"></i>
+                <span>Edit Paper</span>
+            </a>
+            @endcan
+
+            <button class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg shadow-sm transition duration-200 flex items-center gap-2">
+                <i class="fas fa-share-alt"></i>
+                <span>Share</span>
+            </button>
+
+            <button class="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded-lg shadow-sm transition duration-200 flex items-center gap-2">
+                <i class="fas fa-heart"></i>
+                <span>Like ({{ $paper->likes_count }})</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Related Papers Section -->
+<div class="bg-white rounded-xl shadow-md p-6 mt-8 max-w-4xl mx-auto">
+    <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center gap-2">
+        <i class="fas fa-book-open text-red-600"></i>
+        <span>Related Papers</span>
+    </h2>
+
+    @if($relatedPapers->count() > 0)
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        @foreach($relatedPapers as $related)
+        <div class="border rounded-lg p-4 hover:shadow-md transition-shadow duration-200 hover:border-red-200">
+            <h3 class="text-lg font-semibold text-gray-800 mb-1">
+                <a href="{{ route('papers.show', $related->id) }}" class="hover:text-red-700 transition duration-200">{{ $related->title }}</a>
+            </h3>
+            <p class="text-sm text-gray-600 mb-2">
+                {{ Str::limit($related->abstract, 100) }}
+            </p>
+            <div class="flex justify-between items-center text-xs text-gray-500">
+                <span>{{ $related->created_at->diffForHumans() }}</span>
+                <span>{{ $related->views }} views</span>
+            </div>
+        </div>
+        @endforeach
+    </div>
+    @else
+    <div class="text-center py-8 text-gray-500">
+        <i class="fas fa-inbox text-4xl mb-3"></i>
+        <p>No related papers found</p>
+    </div>
+    @endif
+</div>
+
+<!-- Request Modal -->
+<dialog id="requestModal" class="rounded-lg shadow-xl p-0 w-full max-w-md">
+    <div class="bg-white rounded-lg overflow-hidden">
+        <div class="bg-gradient-to-r from-red-700 to-red-600 text-white p-4">
+            <h3 class="text-lg font-semibold">Request Download Permission</h3>
+        </div>
+
+        <form method="POST" action="{{ route('papers.requestDownloadPermission', $paper->id) }}" class="p-6 space-y-4">
+            @csrf
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Target Download Date</label>
+                <input type="date" name="requested_download_date"
+                       class="w-full border rounded-md p-2 focus:ring-red-500 focus:border-red-500" required>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Reason for Request</label>
+                <textarea name="message" rows="4"
+                          class="w-full border rounded-md p-2 focus:ring-red-500 focus:border-red-500"
+                          placeholder="Please explain why you need access to this document..." required></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4">
+                <button type="button" onclick="document.getElementById('requestModal').close()"
+                        class="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition duration-200">
+                    Cancel
+                </button>
+                <button type="submit"
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200">
+                    Submit Request
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+@endsection
+
+@push('styles')
+<style>
+    .prose {
+        line-height: 1.6;
+        color: #374151;
+    }
+    .prose p {
+        margin-bottom: 1em;
+    }
+    dialog::backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+    .transition {
+        transition: all 0.2s ease-in-out;
+    }
+</style>
+@endpush

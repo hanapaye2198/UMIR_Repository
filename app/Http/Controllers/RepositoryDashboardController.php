@@ -19,7 +19,7 @@ class RepositoryDashboardController extends Controller
         $recentPapers = Paper::with(['authors', 'keywords'])->latest()->take(5)->get();
 
         $quickLinks = [
-            ['label' => 'Submit Research', 'url' => route('papers.index')],
+            ['label' => 'Submit Research', 'url' => route('submission.index')],
             ['label' => 'Browse Collections', 'url' => route('collections.index')],
             ['label' => 'Research Guidelines', 'url' => '#'],
             ['label' => 'Help & Tutorials', 'url' => '#'],
@@ -27,8 +27,8 @@ class RepositoryDashboardController extends Controller
 
         $accountLinks = [
             ['label' => 'Logout', 'url' => route('logout'), 'icon' => 'sign-out-alt'],
-            ['label' => 'Profile', 'url' => route('papers.index'), 'icon' => 'user-edit'],
-            ['label' => 'Submissions', 'url' => route('papers.index'), 'icon' => 'file-upload'],
+            ['label' => 'Profile', 'url' => route('submission.index'), 'icon' => 'user-edit'],
+            ['label' => 'Submissions', 'url' => route('submission.index'), 'icon' => 'file-upload'],
             ['label' => 'Saved Items', 'url' => '#', 'icon' => 'bookmark'],
         ];
 

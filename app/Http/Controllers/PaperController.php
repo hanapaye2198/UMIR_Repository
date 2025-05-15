@@ -9,9 +9,56 @@ use App\Models\Author;
 use App\Models\Keyword;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-aslkdhaskjdhas askjdghaskjdh 
+use App\Models\DownloadRequest;
 class PaperController extends Controller
 {
+
+   public function show($id)
+{
+    $paper = Paper::with(['authors', 'collection.community'])->findOrFail($id);
+
+    // 🔥 Count view
+    $paper->increment('views');
+
+    // Get related papers
+    $relatedPapers = Paper::where('collection_id', $paper->collection_id)
+        ->where('id', '!=', $paper->id)
+        ->latest()
+        ->take(4)
+        ->get();
+
+    // Check if student already requested download
+    $existingRequest = null;
+    if (auth()->check() && auth()->user()->role === 'student') {
+        $existingRequest = DownloadRequest::where('user_id', auth()->id())
+            ->where('paper_id', $paper->id)
+            ->latest()
+            ->first();
+    }
+
+    return view('papers.show', compact('paper', 'relatedPapers', 'existingRequest'));
+}
+
+
+public function requestDownloadPermission(Request $request, Paper $paper)
+{
+    $request->validate([
+        'message' => 'required|string|max:500',
+        'requested_download_date' => 'required|date|after_or_equal:today',
+    ]);
+
+    DownloadRequest::create([
+        'paper_id' => $paper->id,
+        'user_id' => auth()->id(),
+        'message' => $request->message,
+        'requested_download_date' => $request->requested_download_date,
+        'status' => 'pending',
+    ]);
+
+    return back()->with('success', 'Your request has been submitted to the admin.');
+}
+
+
     public function index(Collection $collection)
     {
         $papers = $collection->papers()->with(['authors', 'keywords'])->latest()->paginate(10);
@@ -82,11 +129,8 @@ class PaperController extends Controller
             ->with('success', 'Paper uploaded successfully.');
     }
 
-    public function show(Collection $collection, Paper $paper)
-    {
-        $paper->load(['authors', 'keywords']);
-        return view('papers.show', compact('collection', 'paper'));
-    }
+
+
 
     public function edit(Collection $collection, Paper $paper)
     {
@@ -196,6 +240,23 @@ class PaperController extends Controller
             }
         }
     }
+public function download(Paper $paper)
+{
+    $user = auth()->user();
+
+    if ($user->role === 'student') {
+        if ($paper->download_date && now()->lt($paper->download_date)) {
+            return back()->with('error', 'This paper is embargoed until ' . $paper->download_date->format('F d, Y') . '.');
+        }
+
+        if (!$paper->download_permission) {
+            return back()->with('error', 'You are not allowed to download this paper yet. Please request permission.');
+        }
+    }
+
+    $paper->increment('downloads');
+    return response()->download(storage_path('app/public/' . $paper->file_path));
+}
 
     protected function processKeywords(Paper $paper, Request $request)
     {
@@ -214,6 +275,6 @@ class PaperController extends Controller
             }
         }
     }
-    // Removed duplicate download method to avoid redeclaration error.
+
 
 }

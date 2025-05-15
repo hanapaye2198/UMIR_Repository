@@ -47,6 +47,7 @@ class CollectionController extends Controller
      */
     public function show(Collection $collection)
     {
+        $collection->load('papers');
         return view('collections.show', compact('collection'));
     }
 

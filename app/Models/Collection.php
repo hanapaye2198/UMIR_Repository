@@ -14,4 +14,8 @@ class Collection extends Model
     {
         return $this->belongsTo(Community::class);
     }
+    public function papers()
+{
+    return $this->hasMany(Paper::class);
+}
 }

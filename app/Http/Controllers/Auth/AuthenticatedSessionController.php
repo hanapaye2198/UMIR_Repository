@@ -12,6 +12,18 @@ use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
 {
+    protected function redirectTo()
+{
+    $role = auth()->user()->role;
+
+    return match ($role) {
+        'student' => '/repository-dashboard',
+        'faculty' => '/faculty/dashboard',
+        'librarian' => '/admin/dashboard',
+        default => '/repository-dashboard',
+    };
+}
+
     /**
      * Display the login view.
      */
@@ -23,14 +35,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+   public function store(LoginRequest $request): RedirectResponse
+{
+    $request->authenticate();
 
-        $request->session()->regenerate();
+    session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
-    }
+    return redirect()->intended($this->redirectTo());
+}
 
     /**
      * Destroy an authenticated session.

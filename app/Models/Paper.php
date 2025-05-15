@@ -34,15 +34,10 @@ class Paper extends Model
     {
         return $this->belongsToMany(Author::class, 'author_paper');
     }
-
-
-
     public function keywords()
     {
         return $this->belongsToMany(Keyword::class, 'paper_keyword');
     }
-
-
 
     // Helper method to get authors as "Lastname, Firstname" string
     public function getAuthorsListAttribute()

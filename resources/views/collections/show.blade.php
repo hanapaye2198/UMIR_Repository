@@ -20,6 +20,7 @@
 
 @section('content')
 <div class="bg-white rounded-xl shadow-md p-6 max-w-5xl mx-auto">
+    {{-- Header --}}
     <div class="flex justify-between items-center mb-6">
         <h2 class="text-2xl font-semibold text-gray-800">{{ $collection->name }}</h2>
         <div class="flex space-x-2">
@@ -32,34 +33,39 @@
         </div>
     </div>
 
+    {{-- Community Info --}}
     <div class="mb-6">
         <h3 class="text-xl font-semibold text-gray-700 mb-2">Community</h3>
         <p class="text-gray-600">{{ $collection->community->name }}</p>
     </div>
 
+    {{-- Description --}}
     <div class="mb-8">
         <h3 class="text-xl font-semibold text-gray-700 mb-2">Description</h3>
         <p class="text-gray-600">{{ $collection->description ?? 'No description provided.' }}</p>
     </div>
 
-    {{-- Optional: Future Related Papers Section --}}
-    {{--
+    {{-- Papers Section --}}
     <div>
         <h3 class="text-xl font-semibold text-gray-700 mb-4">Papers in this Collection</h3>
+
         @if($collection->papers->count() > 0)
-            <ul class="list-disc list-inside text-gray-600">
+            <div class="space-y-4">
                 @foreach($collection->papers as $paper)
-                    <li>
-                        <a href="{{ route('papers.show', $paper->id) }}" class="text-blue-600 hover:underline">
-                            {{ $paper->title }}
-                        </a>
-                    </li>
+                    <div class="p-4 bg-gray-50 rounded-lg shadow-sm border border-gray-200">
+                        <h4 class="text-lg font-bold text-blue-700">
+                            <a href="{{ route('papers.show', $paper->id) }}" class="hover:underline">
+                                {{ $paper->title }}
+                            </a>
+                        </h4>
+                        <p class="text-gray-500 text-sm">Uploaded on {{ $paper->created_at->format('F d, Y') }}</p>
+                        <p class="mt-2 text-gray-700">{{ Str::limit($paper->abstract, 150, '...') }}</p>
+                    </div>
                 @endforeach
-            </ul>
+            </div>
         @else
-            <p class="text-gray-500">No papers found under this collection.</p>
+            <p class="text-gray-500 italic">No papers found under this collection.</p>
         @endif
     </div>
-    --}}
 </div>
 @endsection
