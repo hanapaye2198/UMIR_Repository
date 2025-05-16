@@ -7,17 +7,18 @@
         <i class="fas fa-tachometer-alt"></i>
         <span>Dashboard</span>
       </a>
-
+      @if(auth()->user()->role === 'faculty' || auth()->user()->role === 'librarian')
       <a href="{{ route('communities.index') }}" class="hover:text-yellow-300 transition-colors duration-200 flex items-center gap-1">
         <i class="fas fa-users"></i>
         <span>UMIR Communities</span>
       </a>
-
+       @endif
+ @if(auth()->user()->role === 'faculty' || auth()->user()->role === 'librarian')
       <a href="{{ route('collections.index') }}" class="hover:text-yellow-300 transition-colors duration-200 flex items-center gap-1">
         <i class="fas fa-layer-group"></i>
         <span>Collection</span>
       </a>
-
+ @endif
       @if(auth()->user()->role === 'faculty' || auth()->user()->role === 'librarian')
         <a href="{{ route('papers.index') }}" class="hover:text-yellow-300 transition-colors duration-200 flex items-center gap-1">
           <i class="fas fa-file-alt"></i>
@@ -25,10 +26,10 @@
         </a>
       @endif
 
-      <a href="#" class="hover:text-yellow-300 transition-colors duration-200 flex items-center gap-1">
+      {{-- <a href="#" class="hover:text-yellow-300 transition-colors duration-200 flex items-center gap-1">
         <i class="fas fa-book-open"></i>
         <span>Library Catalog</span>
-      </a>
+      </a> --}}
 
       @if(auth()->user()->role === 'librarian')
         <a href="{{ route('admin.dashboard') }}" class="text-sm text-white hover:text-yellow-300 flex items-center gap-1">

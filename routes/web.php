@@ -61,6 +61,10 @@ Route::middleware(['auth', 'role:librarian'])->group(function () {
     Route::put('/collections/{collection}/papers/{paper}', [PaperController::class, 'update']);
     Route::delete('/collections/{collection}/papers/{paper}', [PaperController::class, 'destroy']);
 });
+//Route::get('/papers/{paper}/preview', [PaperController::class, 'preview'])->name('papers.preview');
+Route::get('/papers/view-pdf/{paper}', [PaperController::class, 'streamPdf'])->name('papers.stream');
+
+//Route::get('/papers/preview/{paper}', [PaperController::class, 'preview'])->name('papers.preview');
 
 // Faculty & Librarian submission access
 Route::middleware(['auth', 'role:faculty,librarian'])->group(function () {

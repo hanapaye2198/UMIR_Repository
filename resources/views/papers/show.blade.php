@@ -43,10 +43,10 @@
                 <span class="text-sm font-medium text-gray-700">Community:</span>
                 <p class="text-sm">{{ $paper->collection->community->name }}</p>
             </div>
-            <div>
+            {{-- <div>
                 <span class="text-sm font-medium text-gray-700">Course/Program:</span>
                 <p class="text-sm">{{ $paper->course ?? 'Not specified' }}</p>
-            </div>
+            </div> --}}
             <div>
                 <span class="text-sm font-medium text-gray-700">Keywords:</span>
                 <p class="text-sm">
@@ -136,84 +136,107 @@
     </div>
 
     <!-- Download Controls -->
-    <div class="p-6 border-b">
-        @if($isStudent)
-            @if($isEmbargoed)
-                <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-yellow-700">
-                                This paper is under embargo until <strong>{{ \Carbon\Carbon::parse($paper->download_date)->format('F d, Y') }}</strong>.
-                                You cannot download it until this date.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            @elseif(!$hasPermission)
-                <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <i class="fas fa-info-circle text-blue-500 mt-1"></i>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-blue-700">
-                                You need permission to download this paper. Please submit a request below.
-                            </p>
-                        </div>
-                    </div>
-                </div>
+<div class="p-6 border-b">
+    @if($isStudent)
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const iframe = document.querySelector('iframe');
 
-                @if($requestPending)
-                    <div class="bg-purple-50 border-l-4 border-purple-400 p-4 mb-4 rounded">
-                        <div class="flex items-start">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-clock text-purple-500 mt-1"></i>
-                            </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-purple-700">
-                                    Your download request is pending approval.
-                                </p>
-                            </div>
-                        </div>
+            iframe.onload = function () {
+                const viewerWindow = iframe.contentWindow;
+
+                // Monitor PDF page changes
+                const interval = setInterval(() => {
+                    try {
+                        const currentPage = viewerWindow.PDFViewerApplication.page;
+                        if (currentPage > 10) {
+                            alert("You are only allowed to view the first 10 pages as a student.");
+                            viewerWindow.PDFViewerApplication.page = 10;
+                        }
+                    } catch (e) {
+                        // PDFViewerApplication might not be ready yet
+                    }
+                }, 1000);
+            };
+        });
+    </script>
+        @if($isEmbargoed)
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4 rounded">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-1"></i>
                     </div>
-                @else
-                    <button type="button" onclick="document.getElementById('requestModal').showModal()"
-                            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center gap-2 transition duration-200">
-                        <i class="fas fa-paper-plane"></i>
-                        <span>Request Download Permission</span>
-                    </button>
-                @endif
-            @else
-                <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4 rounded">
+                    <div class="ml-3">
+                        <p class="text-sm text-yellow-700">
+                            This paper is under embargo until <strong>{{ \Carbon\Carbon::parse($paper->download_date)->format('F d, Y') }}</strong>.
+                            You cannot download it until this date.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        @elseif(!$hasPermission)
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-4 rounded">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            You need permission to download this paper. Please submit a request below.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            @if($requestPending)
+                <div class="bg-purple-50 border-l-4 border-purple-400 p-4 mb-4 rounded">
                     <div class="flex items-start">
                         <div class="flex-shrink-0">
-                            <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                            <i class="fas fa-clock text-purple-500 mt-1"></i>
                         </div>
                         <div class="ml-3">
-                            <p class="text-sm text-green-700">
-                                Your download permission has been approved. You may now download this paper.
+                            <p class="text-sm text-purple-700">
+                                Your download request is pending approval.
                             </p>
                         </div>
                     </div>
                 </div>
-                <a href="{{ route('papers.download', $paper->id) }}"
-                   class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm inline-flex items-center gap-2 transition duration-200">
-                    <i class="fas fa-download"></i>
-                    <span>Download Paper</span>
-                </a>
+            @else
+                <button type="button" onclick="document.getElementById('requestModal').showModal()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm flex items-center gap-2 transition duration-200">
+                    <i class="fas fa-paper-plane"></i>
+                    <span>Request Download Permission</span>
+                </button>
             @endif
         @else
-            {{-- Non-student users or already permitted --}}
+            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-4 rounded">
+                <div class="flex items-start">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-check-circle text-green-500 mt-1"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-green-700">
+                            Your download permission has been approved. You may now download this paper.
+                        </p>
+                    </div>
+                </div>
+            </div>
             <a href="{{ route('papers.download', $paper->id) }}"
                class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm inline-flex items-center gap-2 transition duration-200">
                 <i class="fas fa-download"></i>
                 <span>Download Paper</span>
             </a>
         @endif
-    </div>
+    @else
+        {{-- Non-student users (faculty/librarian) always allowed --}}
+        <a href="{{ route('papers.download', $paper->id) }}"
+           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm inline-flex items-center gap-2 transition duration-200">
+            <i class="fas fa-download"></i>
+            <span>Download Paper</span>
+        </a>
+    @endif
+</div>
+
 
     <!-- Paper Content -->
     <div class="p-6">
@@ -228,30 +251,55 @@
             </div>
         </div>
 
-        <!-- Preview Section -->
-        <div class="mb-8">
-            <div class="flex items-center gap-2 mb-4 border-b pb-2">
-                <i class="fas fa-file-pdf text-red-600"></i>
-                <h2 class="text-xl font-semibold text-gray-800">Document Preview</h2>
-            </div>
-            <div class="border rounded-lg bg-gray-50 overflow-hidden">
-                @if($paper->file_path && file_exists(public_path('storage/' . $paper->file_path)))
-                    <iframe
-                        src="{{ asset('storage/' . $paper->file_path) }}#page=1"
-                        width="100%"
-                        height="600px"
-                        class="w-full border-none"
-                        style="min-height: 600px;">
-                    </iframe>
-                    <p class="text-sm text-center text-gray-500 py-2 bg-gray-100">Previewing first 10 pages only</p>
-                @else
-                    <div class="text-center text-red-600 py-8 bg-gray-100">
-                        <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
-                        <p class="font-medium">Document not available for preview</p>
-                    </div>
-                @endif
-            </div>
+   <!-- Document Preview Section -->
+<div class="mb-8">
+    <div class="flex items-center gap-2 mb-4 border-b pb-2">
+        <i class="fas fa-file-pdf text-red-600"></i>
+        <h2 class="text-xl font-semibold text-gray-800">Document Preview</h2>
+    </div>
+
+    @if($paper->file_path)
+       @php
+    $fileUrl = route('papers.stream', $paper->id);
+@endphp
+
+
+        @if(auth()->user()->role === 'student')
+            <!-- Student View (limit page navigation to 10) -->
+<iframe
+    src="{{ asset('pdfjs/web/viewer.html') }}?file={{ urlencode(route('papers.stream', $paper->id)) }}"
+    width="100%"
+    height="800px"
+    class="w-full border rounded-lg">
+</iframe>
+
+
+
+            <p class="text-sm text-center text-gray-500 py-2 bg-gray-100">
+                Only the first 10 pages are viewable. Downloading is disabled.
+            </p>
+        @else
+            <!-- Faculty / Librarian Full View -->
+            <iframe
+                src="{{ asset('pdfjs/web/viewer.html') }}?file={{ urlencode($fileUrl) }}"
+                width="100%"
+                height="800px"
+                class="w-full border rounded-lg">
+            </iframe>
+            <p class="text-sm text-center text-gray-500 py-2 bg-gray-100">
+                Full document preview enabled for {{ auth()->user()->role }}.
+            </p>
+        @endif
+    @else
+        <div class="text-center text-red-600 py-8 bg-gray-100">
+            <i class="fas fa-exclamation-triangle text-4xl mb-2"></i>
+            <p class="font-medium">Document not available for preview</p>
         </div>
+    @endif
+</div>
+
+
+
 
         <!-- Additional Actions -->
         <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t">
@@ -355,6 +403,14 @@
 
 @push('styles')
 <style>
+      iframe {
+        pointer-events: auto;
+    }
+    @if($isStudent)
+    iframe::part(toolbarField.pageNumber) {
+        display: none !important;
+    }
+    @endif
     .prose {
         line-height: 1.6;
         color: #374151;
@@ -369,4 +425,15 @@
         transition: all 0.2s ease-in-out;
     }
 </style>
+<script>
+    viewerWindow.document.addEventListener('keydown', function (e) {
+    if (e.key === "ArrowRight" || e.key === "PageDown") {
+        if (viewerWindow.PDFViewerApplication.page >= 10) {
+            e.preventDefault();
+            alert("Navigation past page 10 is disabled for student users.");
+        }
+    }
+});
+
+</script>
 @endpush

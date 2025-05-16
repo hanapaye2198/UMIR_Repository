@@ -12,6 +12,34 @@ use Illuminate\Support\Str;
 use App\Models\DownloadRequest;
 class PaperController extends Controller
 {
+public function preview(Paper $paper)
+{
+    $filePath = storage_path('app/public/' . $paper->file_path);
+
+    if (!file_exists($filePath)) {
+        abort(404, 'File not found.');
+    }
+
+    return response()->file($filePath, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"'
+    ]);
+}
+public function streamPdf(Paper $paper)
+{
+    $filePath = storage_path('app/public/' . $paper->file_path);
+
+    if (!file_exists($filePath)) {
+        abort(404, 'File not found: ' . $filePath);
+    }
+
+    return response()->file($filePath, [
+        'Content-Type' => 'application/pdf',
+        'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"'
+    ]);
+}
+
+
 
    public function show($id)
 {
