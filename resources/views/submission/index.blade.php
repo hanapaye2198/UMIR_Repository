@@ -47,7 +47,9 @@
                 <div class="flex-1">
                     <div class="flex justify-between items-start">
                         <h4 class="text-base sm:text-lg font-semibold text-gray-800 group-hover:text-red-700 transition-colors duration-200">
-                            {{ $paper->title }}
+                                 <a href="{{ route('papers.show', $paper->id) }}" class="hover:underline">
+                                    {{ $paper->title }}
+                                </a>
                         </h4>
                         <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">New</span>
                     </div>

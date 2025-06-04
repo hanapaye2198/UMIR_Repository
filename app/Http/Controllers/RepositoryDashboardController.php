@@ -17,7 +17,11 @@ class RepositoryDashboardController extends Controller
     {
         $communities = Community::withCount(['collections', 'papers'])->get();
         $recentPapers = Paper::with(['authors', 'keywords'])->latest()->take(5)->get();
-
+         $submissionCount = \App\Models\Paper::count(); // total papers
+         $newSubmissions = \App\Models\Paper::whereDate('created_at', today())->count();
+        $monthlyDownloads = \App\Models\Paper::whereMonth('updated_at', now()->month)
+            ->whereYear('updated_at', now()->year)
+            ->sum('downloads');
         $quickLinks = [
             ['label' => 'Submit Research', 'url' => route('submission.index')],
             ['label' => 'Browse Collections', 'url' => route('collections.index')],
@@ -77,7 +81,10 @@ class RepositoryDashboardController extends Controller
             'dateCounts',
             'dateIssued',
             'fileCounts',
-            'user'
+            'user',
+            'submissionCount',
+            'newSubmissions',
+            'monthlyDownloads',
         ));
     }
 }

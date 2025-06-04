@@ -15,7 +15,9 @@ class AdminController extends Controller
 
     $submissionCount = \App\Models\Paper::count(); // total papers
     $newSubmissions = \App\Models\Paper::whereDate('created_at', today())->count();
-
+$monthlyDownloads = \App\Models\Paper::whereMonth('updated_at', now()->month)
+    ->whereYear('updated_at', now()->year)
+    ->sum('downloads');
     $collectionCount = \App\Models\Collection::count();
     $activeCollections = \App\Models\Collection::where('created_at')->count(); // optional if you have status
 
@@ -30,7 +32,9 @@ class AdminController extends Controller
         'activeCollections',
         'communityCount',
         'newCommunities'
+
     ));
+
 }
 public function viewAnalytics()
 {
@@ -61,7 +65,7 @@ public function updateUser(Request $request)
   public function approveUser($id)
 {
     $user = User::findOrFail($id);
-    $user->role = 'librarian'; // <- instead of faculty
+    $user->role = 'student'; // <- instead of faculty
     $user->status = 'approved';
     $user->save();
 

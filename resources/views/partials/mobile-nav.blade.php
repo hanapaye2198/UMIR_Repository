@@ -16,9 +16,13 @@
       <a href="#" class="block text-white hover:bg-red-600 px-3 py-2 rounded-md">
         <i class="fas fa-book-open mr-2"></i>Library Catalog
       </a>
-      <a href="#" class="block text-white hover:bg-red-600 px-3 py-2 rounded-md">
+        <form method="POST" action="{{ route('logout') }}">
+             @csrf
+      <a href="#" onclick="event.preventDefault(); this.closest('form').submit();"
+      class="block text-white hover:bg-red-600 px-3 py-2 rounded-md">
         <i class="fas fa-right-from-bracket mr-2"></i>Logout
       </a>
+      </form>
       @auth
       <div class="text-yellow-300 px-3 py-2">
         Welcome back, {{ Auth::user()->first_name }}

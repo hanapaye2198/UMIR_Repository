@@ -2,8 +2,9 @@
   "ExpandedNodes": [
     "",
     "\\resources",
-    "\\resources\\views"
+    "\\resources\\views",
+    "\\resources\\views\\search"
   ],
-  "SelectedNode": "\\resources\\views\\welcome.blade.php",
+  "SelectedNode": "\\resources\\views\\search\\results.blade.php",
   "PreviewInSolutionExplorer": false
 }

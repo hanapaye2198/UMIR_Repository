@@ -48,16 +48,14 @@
                 <p class="text-sm">{{ $paper->course ?? 'Not specified' }}</p>
             </div> --}}
             <div>
-                <span class="text-sm font-medium text-gray-700">Keywords:</span>
-                <p class="text-sm">
-                    @if($paper->keywords)
-                        @foreach(explode(',', $paper->keywords) as $keyword)
-                            <span class="inline-block bg-gray-100 rounded-full px-3 py-1 text-xs font-semibold text-gray-700 mr-1 mb-1">{{ trim($keyword) }}</span>
-                        @endforeach
-                    @else
-                        None specified
-                    @endif
-                </p>
+                <strong>Keywords:</strong>
+                <ul class="list-disc list-inside text-sm text-gray-700">
+                    @foreach ($paper->keywords as $keyword)
+                        <li>{{ $keyword->name }}</li>
+                    @endforeach
+                </ul>
+            </div>
+
             </div>
         </div>
     </div>

@@ -233,7 +233,7 @@
         <i class="fas fa-chart-line"></i>
         <span>Statistics</span>
     </h3>
-    <p class="text-sm text-gray-600">1,228 items available</p>
+    <p class="text-sm text-gray-600">{{ number_format($submissionCount) }} items available</p>
 </a>
 
           <div class="bg-blue-50 rounded-lg p-3 sm:p-4 border-l-4 border-blue-600">
@@ -241,14 +241,14 @@
               <i class="fas fa-calendar-check"></i>
               <span>Recent Additions</span>
             </h3>
-            <p class="text-sm text-gray-600">24 new items this week</p>
+            <p class="text-sm text-gray-600">{{ number_format($newSubmissions) }}  new items this week</p>
           </div>
           <div class="bg-green-50 rounded-lg p-3 sm:p-4 border-l-4 border-green-600">
             <h3 class="font-bold text-green-800 mb-2 flex items-center gap-2">
               <i class="fas fa-download"></i>
               <span>Downloads</span>
             </h3>
-            <p class="text-sm text-gray-600">5,421 downloads this month</p>
+            <p class="text-sm text-gray-600">{{ number_format($monthlyDownloads) }} downloads this month</p>
           </div>
         </div>
       </section>
@@ -270,8 +270,8 @@
             </h4>
             <p class="text-sm text-gray-600">{{ $community->description }}</p>
             <div class="mt-3 text-xs text-gray-500">
-              <span class="bg-gray-100 px-2 py-1 rounded">1,024 items</span>
-              <span class="bg-gray-100 px-2 py-1 rounded ml-2">12 collections</span>
+              <span class="bg-gray-100 px-2 py-1 rounded">{{ $community->collections_count }} collections</span>
+              {{-- <span class="bg-gray-100 px-2 py-1 rounded ml-2">12 collections</span> --}}
             </div>
           </div>
           @endforeach
@@ -299,23 +299,30 @@
           <!-- Paper Card -->
           <div class="flex flex-col sm:flex-row gap-4 border-b pb-6 group hover:bg-gray-50 p-2 rounded-lg transition-colors duration-200 paper-card">
             <div class="flex-shrink-0">
-              <img src="{{ $paper->thumbnail ? asset('storage/' . $paper->thumbnail) : asset('images/sample-thumb.png') }}" class="w-full sm:w-24 h-auto sm:h-32 object-cover border rounded-md shadow-sm group-hover:shadow-md transition-shadow duration-200" alt="thumbnail">
+              <img
+  src="{{ $paper->thumbnail ? asset('storage/' . $paper->thumbnail) : asset('images/sample-thumb.png') }}"
+  data-pdf-url="{{ asset('storage/' . $paper->file_path) }}"
+  class="pdf-thumbnail w-full sm:w-24 h-auto sm:h-32 object-cover border rounded-md shadow-sm group-hover:shadow-md transition-shadow duration-200"
+  alt="thumbnail">
+
             </div>
             <div>
               <div class="flex justify-between items-start">
                 <h4 class="text-base sm:text-lg font-semibold text-gray-800 group-hover:text-red-700 transition-colors duration-200">
-                  {{ $paper->title }}
+                  <a href="{{ route('papers.show', $paper->id) }}" class="hover:underline">
+                    {{ $paper->title }}
+                </a>
                 </h4>
                 <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">New</span>
               </div>
               <p class="text-sm text-gray-600 mt-1">
-                <span class="font-medium">
-                  @foreach($paper->authors as $author)
-                    {{ $author->name }}@if(!$loop->last), @endif
-                  @endforeach
+             <span class="font-medium">
+                @foreach($paper->authors as $author)
+                    {{ $author->firstname }} {{ $author->lastname }}@if(!$loop->last), @endif
+                @endforeach
                 </span>
                 <span class="text-gray-500">
-                  ({{ $paper->course ?? 'N/A' }}, {{ $paper->publication_date ? \Carbon\Carbon::parse($paper->publication_date)->format('Y-m') : 'N/A' }})
+                  ({{ $paper->publisher ?? 'N/A' }}, {{ $paper->date_of_issue ? \Carbon\Carbon::parse($paper->date_of_issue)->format('Y-m') : 'N/A' }})
                 </span>
               </p>
               <p class="text-sm mt-2 text-gray-700 line-clamp-2">
@@ -563,26 +570,65 @@
       </div>
     </div>
   </footer>
+<!-- Load PDF.js via CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+<script>
+  pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
 
-  <!-- Mobile Menu Toggle Script -->
-  <script>
-    document.getElementById('mobile-menu-button').addEventListener('click', function() {
-      const menu = document.getElementById('mobile-menu');
-      menu.classList.toggle('active');
+  document.addEventListener("DOMContentLoaded", function () {
+    const thumbnails = document.querySelectorAll(".pdf-thumbnail");
+
+    thumbnails.forEach(img => {
+      const pdfUrl = img.dataset.pdfUrl;
+      const isDefaultThumb = img.src.includes("sample-thumb.png");
+
+      if (!pdfUrl || !isDefaultThumb) {
+        console.log("⏭ Skipping (has custom thumb or missing URL)", img.src);
+        return;
+      }
+
+      pdfjsLib.getDocument(pdfUrl).promise.then(pdf => {
+        return pdf.getPage(1);
+      }).then(page => {
+        const scale = 1.0;
+        const viewport = page.getViewport({ scale });
+
+        const canvas = document.createElement("canvas");
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+
+        const context = canvas.getContext("2d");
+
+        return page.render({
+          canvasContext: context,
+          viewport: viewport
+        }).promise.then(() => {
+          const dataUrl = canvas.toDataURL();
+          img.src = dataUrl;
+          console.log("✅ Thumbnail rendered for", img.dataset.pdfUrl);
+        });
+      }).catch(error => {
+        console.error("❌ PDF rendering error:", error);
+      });
     });
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  });
+</script>
 
-  @if(session('success'))
-  <script>
-      Swal.fire({
-          title: 'Success!',
-          text: '{{ session('success') }}',
-          icon: 'success',
-          confirmButtonText: 'OK'
-      })
-  </script>
-  @endif
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- SweetAlert session message -->
+@if(session('success'))
+<script>
+    Swal.fire({
+        title: 'Success!',
+        text: '{{ session('success') }}',
+        icon: 'success',
+        confirmButtonText: 'OK'
+    });
+</>
+@endif
 
 </body>
 </html>
